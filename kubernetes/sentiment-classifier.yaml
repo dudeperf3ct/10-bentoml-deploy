@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+    labels:
+        app: sentiment-classifier
+    name: sentiment-classifier                 # Name of the Service
+spec:
+    ports:
+    - name: predict
+      port: 5000                               # exposes the service within the cluster. Also, other Pods use this to access the Service
+      targetPort: 5000                         # the service sends request while containers accept traffic on this port.
+    selector:
+      app: sentiment-classifier                # serves as a label which should be refrenced in a Pod / Deployment manifest file
+    type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+        app: sentiment-classifier
+    name: sentiment-classifier
+spec:
+    selector:
+        matchLabels:
+            app: sentiment-classifier
+    template:
+        metadata:
+            labels:
+                app: sentiment-classifier
+        spec:
+            containers:
+            - image: dudeperf3ct7/sentiment-classifier
+              imagePullPolicy: IfNotPresent
+              name: sentiment-classifier
+              ports:
+              - containerPort: 5000
